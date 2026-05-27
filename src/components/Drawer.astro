@@ -1,0 +1,29 @@
+---
+import { menu } from "../consts";
+import Socials from "./Socials.astro";
+import Logo from "./Logo.astro";
+---
+
+<div class="drawer-side">
+  <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"
+  ></label>
+  <div
+    class="menu bg-base-200 min-h-full w-80 p-4 flex flex-col justify-between gap-4"
+  >
+    <Logo />
+
+    <ul class="grid gap-2 mt-4 mb-auto">
+      {
+        menu.map((link) => (
+          <li>
+            <a class="hover:underline" href={link.url}>
+              {link.title}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <Socials />
+  </div>
+</div>

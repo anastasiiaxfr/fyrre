@@ -1,19 +1,56 @@
-# Astro Starter Kit: Blog
+> ⭐️ Love this theme? Star it to support our work!
 
-```sh
-npm create astro@latest -- --template blog
-```
+# Astro Starter Fyrre Magazine & Blog website template
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+A fast and modern starter template designed to help teams build and launch magazines, blogs, or brand websites efficiently, with a focus on performance and scalability.
+
+> ⚡ Built with Astro 6, Tailwind CSS 4 & Daisy UI, Sanity CMS latest — optimized for performance, SEO, and simplicity.
+
+![Fyrre Template Preview](https://github.com/anastasiiaxfr/fyrre/blob/main/public/theme/og-1200x630.jpg)
+
+## Demo
+
+- ✨ [Live Demo](https://fyrre-seven.vercel.app/)
+- 💨 [PageSpeed Insights Report](https://pagespeed.web.dev/analysis/https-fyrre-seven-vercel-app/odkg3zo8qd?form_factor=mobile)
+- [Sitemap.xml](https://fyrre-seven.vercel.app/sitemap-index.xml)
+- [Robots.txt](https://fyrre-seven.vercel.app/robots.txt)
 
 Features:
 
+- ✅ Localization & translations (i18n) with support for multiple languages, including English (EN) and Ukrainian (UA)
+- ✅ Pagination and category
 - ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
+- ✅ 99+/100 Lighthouse performance
+- ✅ SEO-friendly with canonical URLs and meta tags, Open Graph data, JSON-LD schema and PWA
+- ✅ Sitemap, robots.txt support
 - ✅ Markdown & MDX support
+- ✅ Fully responsive and accessible
+- ✅ Easily deploy to Vercel, Netlify, or Cloudflare Pages
+
+Pages:
+
+- home
+- blog
+- blog detail
+- podcast
+- podcast detail
+- authors
+- author detail
+- 404 / 500
+
+## PWA support
+
+![pwa](https://github.com/anastasiiaxfr/fyrre/blob/main/public/theme/3.jpg)
+
+## Google pages speed
+
+![mobile](https://github.com/anastasiiaxfr/fyrre/blob/main/public/theme/1.jpg)
+![desktop](https://github.com/anastasiiaxfr/fyrre/blob/main/public/theme/2.jpg)
+
+## Open Graph Card
+
+![Facebook](https://github.com/anastasiiaxfr/fyrre/blob/main/public/theme/5.jpg)
+![Telegram](https://github.com/anastasiiaxfr/fyrre/blob/main/public/theme/4.jpg)
 
 ## 🚀 Project Structure
 
@@ -33,12 +70,6 @@ Inside of your Astro project, you'll see the following folders and files:
 └── tsconfig.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
 Any static assets, like images, can be placed in the `public/` directory.
 
 ## 🧞 Commands
@@ -54,10 +85,56 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
-## 👀 Want to learn more?
+## Sanity CMS start:
 
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+```bash
+npm install -g sanity
+cd cms
 
-## Credit
+# change env values in sanity.config.ts to your current values
 
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+npm install
+npm run dev
+sanity deploy
+```
+
+👉 [CMS](https://fyrre-cms.sanity.studio/)
+
+## CMS Structure:
+
+```text
+├── Posts
+│   ├── EN
+│   ├── UA
+├── Podcasts
+│   ├── EN
+│   ├── UA
+├── Authors
+│   ├── EN
+│   ├── UA
+└── Post Category
+```
+
+![Sanity CMS Preview](https://github.com/anastasiiaxfr/fyrre/blob/main/public/theme/cms1.jpg)
+
+## How it works:
+
+Go to **Posts** and select the desired locale. Then create a new post in that locale.
+
+After that, go to **Translation metadata** and click **Create**. Fill in the fields:
+
+- select Post
+- choose the required post from the dropdown
+- select the target locale (new language)
+
+Then click **Create**.
+
+This way, translations are added to a single post by linking it to different locales.
+
+![Sanity CMS Add translation Preview](https://github.com/anastasiiaxfr/fyrre/blob/main/public/theme/cms2.jpg)
+
+## 🛠 Credits
+
+Made with ❤️ by [anastasiiaxfr](https://github.com/anastasiiaxfr/fyrre)
+
+Fyrre is inspired by the free [Fyrre Theme](https://www.figma.com/community/file/1136023191939170511)

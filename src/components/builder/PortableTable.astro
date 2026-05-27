@@ -1,0 +1,21 @@
+---
+const { node } = Astro.props;
+---
+
+{
+  node?.rows && (
+    <div class="overflow-x-auto my-10">
+      <table class="w-full border-collapse border border-gray-300">
+        <tbody>
+          {node.rows.map((row) => (
+            <tr>
+              {row.cells?.map((cell) => (
+                <td class="border border-gray-300 p-3">{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}

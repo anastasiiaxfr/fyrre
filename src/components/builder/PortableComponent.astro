@@ -1,0 +1,18 @@
+---
+import { PortableText } from "astro-portabletext";
+import PortableImage from "./PortableImage.astro";
+import PortableTable from "./PortableTable.astro";
+
+const { body } = Astro.props;
+//console.log("body", body);
+---
+
+<PortableText
+  value={body}
+  components={{
+    type: {
+      image: PortableImage,
+      table: PortableTable,
+    },
+  }}
+/>

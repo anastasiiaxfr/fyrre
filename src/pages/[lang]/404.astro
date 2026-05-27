@@ -1,0 +1,22 @@
+---
+import Layout from "../../layouts/Base.astro";
+import { LOCALES } from "../../i18n";
+const locale = Astro.currentLocale;
+
+export const getStaticPaths = () =>
+  Object.keys(LOCALES).map((lang) => ({
+    params: { lang },
+  }));
+---
+
+<Layout title="Not found">
+  <section class="section">
+    <div class="container text-center grid gap-4">
+      <h1 class="text-5xl lg:text-9xl font-bold">404</h1>
+      <p>Sorry, we couldn't fint that page</p>
+      <a href="/" class="btn btn-neutral mx-auto shadow-none rounded-none"
+        >GO TO HOME</a
+      >
+    </div>
+  </section>
+</Layout>

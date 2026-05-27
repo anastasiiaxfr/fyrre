@@ -1,0 +1,78 @@
+---
+import Image from "astro/components/Image.astro";
+import { formatDateTime } from "../utils/dateFormatter";
+const {
+  title,
+  description,
+  duration,
+  _createdAt,
+  slug,
+  image,
+  author,
+  categories,
+} = Astro.props;
+
+const locale = Astro.currentLocale;
+
+//console.log("cat", categories);
+---
+
+<article
+  class="group flex-1 grid grid-cols-1 gap-4 p-4 lg:p-10 border
+  nth-[2n]:border-t-0
+  nth-[2n+1]:border-t-0
+  nth-[1]:border-t!
+  md:nth-[2]:border-t
+  lg:nth-[3]:border-t
+  md:nth-[2n+1]:border-t
+  md:nth-[n+3]:border-t-0
+  md:nth-[2n]:border-l-0
+  lg:nth-[2n]:border-l
+  lg:nth-[3n]:border-l-0
+  lg:nth-[3n+2]:border-l-0
+  lg:nth-[n+4]:border-t-0"
+>
+  <div>
+    <div class="flex flex-wrap justify-between in gap-4 mb-4">
+      <span>{formatDateTime(_createdAt)}</span>
+      <a
+        href={`/${locale}/blog/${categories.slug.current}`}
+        class="uppercase ml-auto btn btn-outline rounded-full py-1 px-4 h-auto hover:bg-black hover:text-white"
+      >
+        {categories.title}
+      </a>
+    </div>
+    <a href={`/${locale}/blog/${slug}`} class="mb-auto">
+      <Image
+        src={image}
+        alt={title}
+        width="150"
+        height="150"
+        format="webp"
+        quality={80}
+        class="aspect-square mx-auto h-auto w-full"
+      />
+
+      <h3 class="mb-0 mt-4 group-hover:underline">{title}</h3>
+    </a>
+  </div>
+  <div
+    class="mx-auto lg:mx-0 flex flex-wrap justify-between items-center mt-auto"
+  >
+    <a href={`/${locale}/blog/${slug}`}>
+      <p>{description}</p>
+    </a>
+    <div class="flex flex-wrap gap-x-6 gap-y-3 justify-start items-center mt-4">
+      <p>
+        <b class="mr-2">Text</b>
+        <a href={`/${locale}/authors/${author.slug.current}`} class="hover:underline">
+          {author.name}
+        </a>
+      </p>
+      <p>
+        <b class="mr-2">Duration</b>
+        <span>{duration} Min</span>
+      </p>
+    </div>
+  </div>
+</article>

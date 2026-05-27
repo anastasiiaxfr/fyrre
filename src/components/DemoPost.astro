@@ -1,0 +1,94 @@
+---
+import Image from "astro/components/Image.astro";
+import { client } from "../lib/sanity";
+import { formatDate } from "../utils/dateFormatter";
+const locale = Astro.currentLocale;
+
+const post = await client.fetch(
+  `
+  *[_type == "post" && language == $locale]
+  | order(_createdAt desc)[0]{
+    title,
+    description,
+    duration,
+    _createdAt,
+    "slug": slug.current,
+    "image": coalesce(mainImage.asset->url, thumbnail.asset->url),
+    "author": author->{name, slug},
+    "categories": categories[0]->{
+      "title": title[language == $locale][0].value,
+      slug
+    }
+  }
+  `,
+  {
+    locale,
+  },
+);
+
+//console.log("post", post);
+console.log("cat", post.categories.title);
+//console.log("img", post.image);
+---
+
+{
+  post ? (
+    <section class="section section-demo-post">
+      <div class="container grid gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 order-2 lg:order-1 group">
+          <a href={`/blog/${post.slug}`} class="group-hover:underline">
+            <h2 class="h1">{post.title}</h2>
+          </a>
+          <div class="grid gap-4">
+            <a href={`/blog/${post.slug}`}>
+              <p>{post.description}</p>
+            </a>
+
+            <div class="flex flex-wrap gap-x-6 gap-y-3 justify-between items-center">
+              <p>
+                <b class="mr-2">Text</b>
+                <a
+                  href={`/authors/${post.author.slug.current}`}
+                  class="hover:underline"
+                >
+                  {post.author.name}
+                </a>
+              </p>
+              <p>
+                <b class="mr-2">Date</b>
+                <span>{formatDate(post._createdAt)}</span>
+              </p>
+              <p>
+                <b class="mr-2">Duration</b>
+                <span>{post.duration} Min</span>
+              </p>
+
+              <a
+                href={`/blog/${post.categories.slug.current}`}
+                class="ml-auto btn btn-outline rounded-full py-1 px-4 h-auto hover:bg-black hover:text-white uppercase"
+              >
+                {post.categories.title}
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="order-1 lg:order-2">
+          <a href={`/blog/${post.slug}`} class="group-hover:underline">
+            <Image
+              src={post.image}
+              alt={post.title}
+              width={700}
+              height={350}
+              format="webp"
+              quality={50}
+              loading="eager"
+              fetchpriority="high"
+              sizes="100vw"
+              class="w-full h-auto aspect-[2/1] object-cover"
+            />
+          </a>
+        </div>
+      </div>
+    </section>
+  ) : null
+}

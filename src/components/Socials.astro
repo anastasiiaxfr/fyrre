@@ -1,0 +1,40 @@
+---
+const socials = [
+  {
+    url: "#",
+    title: "Instagram",
+    icon: "fa-brands fa-instagram",
+  },
+  {
+    url: "#",
+    title: "Twitter",
+    icon: "fa-brands fa-x-twitter",
+  },
+  {
+    url: "#",
+    title: "Youtube",
+    icon: "fa-brands fa-youtube",
+  },
+  {
+    url: "#",
+    title: "Rss",
+    icon: "fa-solid fa-rss",
+  },
+];
+---
+
+<nav class="flex items-center gap-3 flex-wrap">
+  {
+    socials.map((icon) => (
+      <a
+        href={icon.url}
+        title={icon.title}
+        class="hover:rotate-12"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <i class={icon.icon} />
+      </a>
+    ))
+  }
+</nav>

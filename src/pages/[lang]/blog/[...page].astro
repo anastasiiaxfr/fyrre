@@ -1,0 +1,102 @@
+---
+import Layout from "../../../layouts/Base.astro";
+import Hero from "../../../components/Hero.astro";
+import PostCard from "../../../components/PostCardBase.astro";
+import Pagination from "../../../components/Pagination.astro";
+import { client } from "../../../lib/sanity";
+import { LOCALES } from "../../../i18n";
+
+export async function getStaticPaths({ paginate }) {
+  const paths = [];
+
+  for (const lang of Object.keys(LOCALES)) {
+    const posts = await client.fetch(
+      `
+      *[_type == "post" && language == $lang]
+      | order(_createdAt desc)
+      {
+        title,
+        description,
+        duration,
+        _createdAt,
+        "slug": slug.current,
+        "image": thumbnail.asset->url,
+        "author": author->{name, slug},
+        "categories": categories[0]->{
+          "title": title[language == $lang][0].value,
+          slug
+        }
+      }
+    `,
+      { lang }
+    );
+
+    const paginated = paginate(posts, {
+      pageSize: 12,
+      params: {
+        lang,
+      },
+    });
+
+    paths.push(...paginated);
+  }
+
+  return paths;
+}
+
+const locale = Astro.params.lang;
+
+const { page } = Astro.props;
+
+
+const totalPages = Math.ceil(page.total / page.size);
+
+const postsCategories = await client.fetch(
+  `
+  *[_type == "category"]
+  | order(_createdAt desc)
+  {
+    "title": title[language == $lang][0].value,
+    "slug": slug.current,
+  }
+`,
+  { lang: locale }
+);
+---
+
+<Layout title="Blog">
+  <Hero title="Magazine" />
+
+  <section class="mt-10">
+    <div class="container flex flex-wrap justify-between items-center gap-4">
+      <p class="font-semibold uppercase">Categories</p>
+      <div class="flex flex-wrap items-center gap-4 justify-start">
+        <a
+          href={`/${locale}/blog`}
+          class="btn btn-outline rounded-full py-1 px-4 h-auto hover:bg-black hover:text-white uppercase"
+        >
+          ALL
+        </a>
+        {
+          postsCategories.map((cat) => (
+            <a
+              href={`/${locale}/blog/${cat.slug}`}
+              class="btn btn-outline rounded-full py-1 px-4 h-auto hover:bg-black hover:text-white uppercase"
+            >
+              {cat.title}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+  <section class="section mt-5!">
+    <div class="container">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-10">
+        {page.data.map((post, index) => <PostCard {...post} />)}
+      </div>
+
+      {totalPages > 1 && <Pagination totalPages={totalPages} page={page} />}
+    </div>
+  </section>
+</Layout>

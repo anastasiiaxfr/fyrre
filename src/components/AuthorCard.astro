@@ -1,0 +1,44 @@
+---
+import Image from "astro/components/Image.astro";
+const { name, city, job, slug, image } = Astro.props;
+const locale = Astro.currentLocale;
+
+---
+
+<article
+  class="p-4 md:p-10 border md:even:border-l-0 even:border-y-0 md:even:border-y last-of-type:border-b md:even:border
+                    md:nth-[4n+3]:border-t-0
+                    md:nth-[4n+4]:border-t-0
+                    md:nth-[4n+5]:border-t-0
+                    md:nth-[4n+6]:border-t-0"
+>
+  <a
+    href={`/${locale}/authors/${slug}`}
+    class="grid grid-cols-1 text-center lg:text-left lg:grid-cols-[150px_1fr] gap-10 items-center"
+  >
+    <Image
+      src={image}
+      alt=""
+      width="150"
+      height="150"
+      format="webp"
+      quality={80}
+      class="rounded-full aspect-square mx-auto h-auto"
+    />
+    <div class="mx-auto lg:mx-0">
+      <h3>{name}</h3>
+      <div
+        class="flex flex-wrap gap-x-6 gap-y-3 justify-start items-center mt-4"
+      >
+        <p>
+          <b class="mr-2">Job</b>
+          <span class="hover:underline"> {job} </span>
+        </p>
+        <p>
+          <b class="mr-2">City</b>
+          <span>{city}</span>
+        </p>
+      </div>
+    </div>
+  </a>
+</article>

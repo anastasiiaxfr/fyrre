@@ -1,0 +1,49 @@
+---
+import Image from "astro/components/Image.astro";
+
+const { name, city, job, slug, image } = Astro.props;
+const locale = Astro.currentLocale;
+
+---
+
+<article>
+  <a
+    href={`/${locale}/authors/${slug}`}
+    class="grid grid-cols-1 text-center lg:text-left lg:grid-cols-[150px_1fr] gap-10 items-center"
+  >
+    <Image
+      src={image}
+      alt={name}
+      width="150"
+      height="150"
+      format="webp"
+      quality={80}
+      class="rounded-full aspect-square mx-auto h-auto"
+    />
+
+    <div
+      class="mx-auto lg:mx-0 flex flex-wrap justify-center md:justify-between items-center"
+    >
+      <h3 class="mb-0">{name}</h3>
+
+      <div
+        class="flex flex-wrap gap-x-6 gap-y-3 justify-start items-center mt-4"
+      >
+        <p>
+          <b class="mr-2">Job</b>
+          <span> {job} </span>
+        </p>
+        <p>
+          <b class="mr-2">City</b>
+          <span>{city}</span>
+        </p>
+        <button
+          class="btn btn-link text-inherit uppercase no-underline group p-0"
+        >
+          About
+          <i class="fa-solid fa-arrow-right group-hover:translate-x-1"></i>
+        </button>
+      </div>
+    </div>
+  </a>
+</article>

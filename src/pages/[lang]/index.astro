@@ -1,0 +1,25 @@
+---
+import Layout from "../../layouts/Base.astro";
+import Hero from "../../components/Hero.astro";
+import Topline from "../../components/Topline.astro";
+import Demo from "../../components/DemoPost.astro";
+import Posts from "../../components/Posts.astro";
+import Podcasts from "../../components/Podcasts.astro";
+import Authors from "../../components/Authors.astro";
+import { LOCALES } from "../../i18n";
+const locale = Astro.currentLocale;
+
+export const getStaticPaths = () =>
+  Object.keys(LOCALES).map((lang) => ({
+    params: { lang },
+  }));
+---
+
+<Layout title="Homepage">
+  <Hero title="Art & Life" />
+  <Topline />
+  <Demo />
+  <Posts />
+  <Podcasts />
+  <Authors />
+</Layout>

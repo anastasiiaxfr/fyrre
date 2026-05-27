@@ -1,0 +1,67 @@
+---
+import Image from "astro/components/Image.astro";
+import { formatDate } from "../utils/dateFormatter";
+
+const { title, _createdAt, duration, episod, slug, image } = Astro.props;
+const locale = Astro.currentLocale;
+
+---
+
+<article
+  class="border lg:even:border-l-0 even:border-y-0 lg:even:border-y last-of-type:border-b
+                    lg:nth-[4n+2]:border-l-0
+                    lg:nth-[4n+3]:border-l-0 p-4 lg:p-10 group flex flex-col"
+>
+  <a
+    href={`/${locale}/podcast/${slug}`}
+    class="grid grid-cols-1 sm:grid-cols-[1fr_2fr] gap-4 lg:gap-10 lg:grid-cols-1 flex-1"
+  >
+    <div class="grid">
+      <Image
+        src={image}
+        alt={title}
+        width="369"
+        height="462"
+        format="webp"
+        quality={80}
+        class="w-full h-auto [grid-area:1/1/2/2]"
+      />
+      <div
+        class="flex flex-col justify-between [grid-area:1/1/2/2] text-white p-4 lg:p-10"
+      >
+        <div>
+          <p class="text-5xl xl:text-8xl leading-[0.8]">FYRRE</p>
+          <p class="uppercase text-xl xl:text-3xl mt-4">Podcast</p>
+        </div>
+
+        <div class="flex justify-between items-end">
+          <div>
+            <p class="text-3xl uppercase">
+              Ep{" "}
+              {episod < 10 ? `0${episod}` : episod}
+            </p>
+          </div>
+          <div>
+            <Image src="/img/icons/arrow.svg" alt="" width="46" height="46" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col justify-between">
+      <h3 class="group-hover:underline">{title}</h3>
+
+      <div
+        class="flex flex-wrap gap-x-6 gap-y-3 justify-start items-center mt-10"
+      >
+        <p>
+          <b class="mr-2">Date</b>
+          <span>{formatDate(_createdAt)}</span>
+        </p>
+        <p>
+          <b class="mr-2">Duration</b>
+          <span>{duration} Min</span>
+        </p>
+      </div>
+    </div>
+  </a>
+</article>

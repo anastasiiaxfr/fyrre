@@ -1,0 +1,49 @@
+---
+import PodcastCard from "../components/PodcastCard.astro";
+
+import { client } from "../lib/sanity";
+const locale = Astro.currentLocale;
+
+const podcasts = await client.fetch(
+  `
+  *[_type == "podcast" && language == $locale] | order(_createdAt desc)[0...3]{
+    title,
+    _createdAt,
+    duration, 
+    episod,
+    "slug": slug.current,
+    "image": mainImage.asset->url
+  }
+`,
+  {
+    locale,
+  },
+);
+---
+
+{
+  podcasts?.length > 0 ? (
+    <section class="section section-podcasts">
+      <div class="container">
+        <div class="border-t pt-8">
+          <div class="flex flex-wrap gap-4 justify-between items-center">
+            <h2 class="h1">Podcast</h2>
+            <a
+              href={`/${locale}/podcast`}
+              class="btn btn-link text-inherit uppercase no-underline group p-0"
+            >
+              All Episodes
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1" />
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols=2 lg:grid-cols-3 mt-10">
+            {podcasts.map((podcast) => (
+              <PodcastCard {...podcast} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  ) : null
+}

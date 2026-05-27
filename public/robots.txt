@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://fyrre-seven.vercel.app/sitemap-index.xml

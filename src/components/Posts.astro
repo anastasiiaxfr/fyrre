@@ -1,0 +1,68 @@
+---
+import PostCardRow from "../components/PostCardRow.astro";
+import Subscribe from "../components/Subscride.astro";
+import Banner from "../components/Banner.astro";
+import MostPopularPosts from "../components/MostPopularPosts.astro";
+
+import { client } from "../lib/sanity";
+const locale = Astro.currentLocale;
+
+const posts = await client.fetch(
+  `
+  *[_type == "post" && language == $locale]
+  | order(_createdAt desc)
+  [1...7]{
+    title,
+    description,
+    duration,
+    _createdAt,
+    "slug": slug.current,
+    "image": thumbnail.asset->url,
+    "author": author->{name, slug},
+    "categories": categories[0]->{
+      "title": title[language == $locale][0].value,
+      slug
+    }
+  }
+`,
+  {
+    locale,
+  },
+);
+
+//console.log("posts", posts);
+//console.log("cat", post.categories.title[0].value);
+//console.log("img", post.image);
+---
+
+{
+  posts.length > 0 ? (
+    <section class="section section-posts">
+      <div class="container">
+        <div class="grid grid-cols-1 lg:grid-cols-[3fr_1fr] gap-10">
+          <div>
+            <div class="grid gap-10">
+              {posts.map((post) => (
+                <PostCardRow {...post} />
+              ))}
+            </div>
+            <a
+              href={`/${locale}/blog`}
+              class="btn btn-link mt-10 text-inherit uppercase no-underline group p-0"
+            >
+              All articles
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1" />
+            </a>
+          </div>
+          <aside class="lg:flex flex-col gap-10 hidden">
+            <Banner />
+
+            <MostPopularPosts />
+
+            <Subscribe />
+          </aside>
+        </div>
+      </div>
+    </section>
+  ) : null
+}

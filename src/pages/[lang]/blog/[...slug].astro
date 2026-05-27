@@ -1,0 +1,289 @@
+---
+import Image from "astro/components/Image.astro";
+import Layout from "../../../layouts/Base.astro";
+import { client } from "../../../lib/sanity";
+import PostCardBase from "../../../components/PostCardBase.astro";
+import PortableComponent from "../../../components/builder/PortableComponent.astro";
+import { formatDate } from "../../../utils/dateFormatter";
+
+import { LOCALES } from "../../../i18n";
+
+export async function getStaticPaths() {
+  const paths = [];
+
+  for (const lang of Object.keys(LOCALES)) {
+    const posts = await client.fetch(
+      `
+      *[
+        _type == "post"
+        && language == $lang
+      ]{
+        title,
+        description,
+        duration,
+        body,
+        _createdAt,
+        language,
+        translationGroup,
+        "slug": slug.current,
+
+        "image": coalesce(
+          mainImage.asset->url,
+          thumbnail.asset->url
+        ),
+
+        "author": author->{
+          name,
+          "slug": slug.current,
+          "image": image.asset->url
+        },
+
+        "categories": categories[0]->{
+          "title": title[language == $lang][0].value,
+          "slug": slug.current
+        }
+      }
+      `,
+      { lang }
+    );
+
+    for (const post of posts) {
+      if (!post.translationGroup) continue;
+
+      const translations = await client.fetch(
+        `
+        *[
+          _type == "post"
+          && translationGroup == $group
+        ]{
+          language,
+          "slug": slug.current
+        }
+        `,
+        { group: post.translationGroup }
+      );
+
+      const translationMap = {};
+
+      for (const t of translations) {
+        if (t.language && t.slug) {
+          translationMap[t.language] =
+            `/${t.language}/blog/${t.slug}`;
+        }
+      }
+
+      paths.push({
+        params: {
+          lang,
+          slug: post.slug,
+        },
+        props: {
+          post,
+          translations: translationMap,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+const locale = Astro.params.lang;
+
+const { post, translations } = Astro.props;
+
+const relatedPosts = await client.fetch(
+  `
+  *[
+    _type == "post"
+    && language == $lang
+    && slug.current != $currentSlug
+  ]
+  | order(_createdAt desc)[0...3]{
+    title,
+    description,
+    duration,
+    _createdAt,
+
+    "slug": slug.current,
+
+    "image": thumbnail.asset->url,
+
+    "author": author->{
+      name,
+      slug
+    },
+
+    "categories": categories[0]->{
+      "title": title[language == $lang][0].value,
+      slug
+    }
+  }
+  `,
+  {
+    lang: locale,
+    currentSlug: post.slug,
+  }
+);
+
+const socials = [
+  {
+    url: "#",
+    title: "Instagram",
+    icon: "fa-brands fa-instagram",
+  },
+  {
+    url: "#",
+    title: "Twitter",
+    icon: "fa-brands fa-x-twitter",
+  },
+  {
+    url: "#",
+    title: "Youtube",
+    icon: "fa-brands fa-youtube",
+  },
+];
+---
+
+<Layout title={post.title} description={post.description} image={post.image} translations={translations}>
+  <section class="mt-10">
+    <div class="container">
+      <div class="flex itms-center justify-between flex-wrap gap-4">
+        <a
+          href={`/${locale}/blog`}
+          class="btn btn-link text-inherit uppercase no-underline group p-0"
+          ><i class="fa-solid fa-arrow-left group-hover:translate-x-1"></i> Go Back
+        </a>
+        <p class="font-semibold text-3xl uppercase">Magazine</p>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+        <h1>{post.title}</h1>
+        <p class="text-lg font-semibold">
+          {post.description}
+        </p>
+      </div>
+      <div>
+        <div
+          class="flex flex-wrap gap-x-6 gap-y-3 justify-between items-center mb-5"
+        >
+          {post.author && <p>
+            <b class="mr-2">Text</b>
+            <a href={`/authors/${post.author.slug.current}`}
+              >{post.author.name}</a
+            >
+          </p>}
+          <p>
+            <b class="mr-2">Date</b>
+            <span>{formatDate(post._createdAt)}</span>
+          </p>
+          <p>
+            <b class="mr-2">Read</b>
+            <span>{post.duration} Min</span>
+          </p>
+
+          <a
+            href={`/blog/${post.categories.slug.current}`}
+            class="ml-auto btn btn-outline rounded-full py-1 px-4 h-auto hover:bg-black hover:text-white"
+            >{post.categories.title}</a
+          >
+        </div>
+        <Image
+          src={post.image}
+          alt={post.title}
+          width="1200"
+          height="600"
+          format="webp"
+          fetchpriority="high"
+          quality={45}
+          loading="eager"
+          class="aspect-2/1 w-full h-auto object-cover"
+        />
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div
+        class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-x-20 gap-y-10"
+      >
+        <aside>
+          {post.author && <a
+            href={`/authors/${post.author.slug.current}`}
+            class="text-2xl md:text-4xl font-semibold grid grid-cols-[80px_1fr] gap-4 items-center"
+          >
+            <Image
+              src={post.author.image}
+              alt={post.author.name}
+              width="80"
+              height="80"
+              format="webp"
+              class="rounded-full h-auto mx-auto"
+            />
+            {post.author.name}</a>}
+
+          <div class="grid gap-4 border-t pt-5 mt-8">
+            <div class="grid grid-cols-[1fr_auto] gap-2">
+              <b>Date</b>
+              <span>{formatDate(post._createdAt)}</span>
+            </div>
+            <div class="grid grid-cols-[1fr_auto] gap-2">
+              <b>Read</b>
+              <span>{post.duration} Min</span>
+            </div>
+            <div class="grid grid-cols-[1fr_auto] gap-2">
+              <b>Share</b>
+              <nav class="flex items-center gap-3 flex-wrap">
+                {
+                  socials.map((icon) => (
+                    <a
+                      href={icon.url}
+                      title={icon.title}
+                      class="hover:rotate-12"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i class={icon.icon} />
+                    </a>
+                  ))
+                }
+              </nav>
+            </div>
+          </div>
+        </aside>
+       {post.body && <div class="post">
+          <PortableComponent body={post.body} />
+        </div>}
+      </div>
+    </div>
+  </section>
+
+  {
+    relatedPosts.length > 0 && (
+      <section class="section">
+        <div class="container">
+          <div class="border-t pt-10">
+            <div class="flex flex-wrap gap-4 justify-between items-center">
+              <h2 class="uppercase">Latest Posts</h2>
+              <a
+                href="/podcast"
+                class="btn btn-link text-inherit uppercase no-underline group p-0"
+              >
+                See all
+                <i class="fa-solid fa-arrow-right group-hover:translate-x-1" />
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-10">
+              {relatedPosts.map((post) => (
+                <PostCardBase {...post} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Layout>

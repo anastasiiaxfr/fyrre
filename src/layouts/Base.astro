@@ -1,0 +1,35 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import Drawer from "../components/Drawer.astro";
+
+const { title, description, image, translations} = Astro.props;
+
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description} image={image} />
+  </head>
+  <body>
+    <div class="drawer flex-1">
+      <input
+        id="my-drawer-2"
+        type="checkbox"
+        class="drawer-toggle"
+        aria-label="Toggle menu"
+      />
+
+      <div class="drawer-content flex flex-col">
+        <div class="flex-1">
+          <Header  translations={translations}/>
+          <main><slot /></main>
+        </div>
+        <Footer />
+      </div>
+      <Drawer />
+    </div>
+  </body>
+</html>

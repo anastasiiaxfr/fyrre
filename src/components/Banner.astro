@@ -1,0 +1,55 @@
+---
+import Image from "astro/components/Image.astro";
+---
+
+<div>
+  <h4 class="uppercase font-semibold text-xl">Printmagazine</h4>
+  <p class="text-5xl">03/2022</p>
+
+  <a href="#" class="grid mt-10">
+    <Image
+      src="/img/banners/banner1.jpg"
+      alt=""
+      width="369"
+      height="462"
+      format="webp"
+      quality={45}
+      class="w-full h-auto [grid-area:1/1/2/2]"
+    />
+    <div
+      class="flex flex-col justify-between [grid-area:1/1/2/2] text-white p-10"
+    >
+      <div>
+        <p class="text-7xl md:text-9xl leading-[0.8]">FYRRE</p>
+        <p class="uppercase text-3xl mt-4">MAGAZINE</p>
+      </div>
+
+      <div class="flex justify-between items-end">
+        <div>
+          <div
+            class="rounded-full w-[114px] h-[114px] text-black bg-[#ECC584] uppercase text-center flex items-center mb-4"
+          >
+            <div class="-rotate-12">
+              <p class="text-[12px]">Exclusive</p>
+              <p class="text-md leading-none my-1 font-semibold">
+                Jacob Gronberg
+              </p>
+              <hr class="w-[50%] mx-auto my-1 mt-2" />
+              <p class="text-[12px]">Interview</p>
+            </div>
+          </div>
+          <p class="text-3xl">03/2022</p>
+        </div>
+        <div>
+          <Image src="/img/icons/arrow.svg" alt="" width="46" height="46" />
+        </div>
+      </div>
+    </div>
+  </a>
+  <a
+    href="#"
+    class="btn btn-neutral btn-lg shadow-none uppercase mt-4 rounded-none hover:bg-white hover:text-black"
+  >
+    BUtton
+  </a>
+</div>

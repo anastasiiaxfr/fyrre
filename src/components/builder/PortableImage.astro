@@ -1,0 +1,26 @@
+---
+import { urlFor } from "../../lib/imageUrl";
+
+const { node } = Astro.props;
+
+const imageUrl = node?.asset ? urlFor(node).width(1200).url() : null;
+---
+
+{
+  imageUrl && (
+    <figure class="my-10">
+      <img
+        src={imageUrl}
+        alt={node?.alt || ""}
+        class="w-full h-auto"
+        loading="lazy"
+      />
+
+      {node?.caption && (
+        <figcaption class="text-center text-sm mt-3 opacity-70">
+          {node.caption}
+        </figcaption>
+      )}
+    </figure>
+  )
+}

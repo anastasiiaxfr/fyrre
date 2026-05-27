@@ -1,0 +1,6 @@
+---
+import { SITE_TITLE } from "../consts";
+const locale = Astro.currentLocale;
+---
+
+<a href={`/${locale}`} class="logo font-bold uppercase"> {SITE_TITLE} </a>

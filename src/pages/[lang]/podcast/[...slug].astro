@@ -1,0 +1,291 @@
+---
+import Image from "astro/components/Image.astro";
+import Layout from "../../../layouts/Base.astro";
+import { client } from "../../../lib/sanity";
+import { formatDate } from "../../../utils/dateFormatter";
+import PortableComponent from "../../../components/builder/PortableComponent.astro";
+import PodcastCard from "../../../components/PodcastCard.astro";
+
+import { LOCALES } from "../../../i18n";
+
+export async function getStaticPaths() {
+  const paths = [];
+
+  for (const lang of Object.keys(LOCALES)) {
+    const podcasts = await client.fetch(
+      `
+      *[
+        _type == "podcast"
+        && language == $lang
+      ]{
+        title,
+        _createdAt,
+        duration,
+        episod,
+        body,
+        description,
+        translationGroup,
+        language,
+        "slug": slug.current,
+        "image": mainImage.asset->url
+      }
+      `,
+      { lang }
+    );
+
+    for (const podcast of podcasts) {
+      if (!podcast.translationGroup) continue;
+
+      const translations = await client.fetch(
+        `
+        *[
+          _type == "podcast"
+          && translationGroup == $group
+        ]{
+          language,
+          "slug": slug.current
+        }
+        `,
+        { group: podcast.translationGroup }
+      );
+
+const translationMap = {};
+
+for (const t of translations) {
+  if (t.language && t.slug) {
+    translationMap[t.language] =
+      `/${t.language}/podcast/${t.slug}`;
+  }
+}
+
+      paths.push({
+        params: {
+          lang,
+          slug: podcast.slug,
+        },
+        props: {
+          podcast,
+          translations: translationMap,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const locale = Astro.params.lang;
+
+const { podcast, translations } = Astro.props;
+
+const relatedPodcasts = await client.fetch(
+  `
+  *[
+    _type == "podcast"
+    && language == $lang
+    && slug.current != $currentSlug
+  ]
+  | order(_createdAt desc)[0...3]{
+    title,
+    duration,
+    episod,
+    _createdAt,
+    "slug": slug.current,
+    "image": mainImage.asset->url
+  }
+  `,
+  {
+    lang: locale,
+    currentSlug: podcast.slug,
+  }
+);
+
+
+const socials = [
+  {
+    url: "#",
+    title: "Instagram",
+    icon: "fa-brands fa-instagram",
+  },
+  {
+    url: "#",
+    title: "Twitter",
+    icon: "fa-brands fa-x-twitter",
+  },
+  {
+    url: "#",
+    title: "Youtube",
+    icon: "fa-brands fa-youtube",
+  },
+];
+---
+
+<Layout
+  title={podcast.title}
+  description={podcast.description}
+  image={podcast?.image || ""}
+  translations={translations}
+>
+  <section class="mt-10">
+    <div class="container">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <a
+          href={`/${locale}/podcast`}
+          class="btn btn-link text-inherit uppercase no-underline group p-0"
+        >
+          <i class="fa-solid fa-arrow-left group-hover:translate-x-1"></i>
+          Go Back
+        </a>
+
+        <p class="font-semibold text-3xl uppercase">PODCAST</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div
+        class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-x-20 gap-y-10"
+      >
+        <aside>
+          <div class="grid">
+            {podcast?.image && <Image
+              src={podcast.image}
+              alt={podcast.title}
+              width="369"
+              height="462"
+              format="webp"
+              quality={80}
+              class="w-full h-auto [grid-area:1/1/2/2]"
+            />}
+
+            <div
+              class="flex flex-col justify-between [grid-area:1/1/2/2] text-white p-4 lg:p-10"
+            >
+              <div>
+                <p class="text-5xl xl:text-8xl leading-[0.8]">FYRRE</p>
+                <p class="uppercase text-xl xl:text-3xl mt-4">Podcast</p>
+              </div>
+
+              <div class="flex justify-between items-end">
+                <div>
+                  <p class="text-3xl uppercase">
+                    Ep {podcast?.episod}
+                  </p>
+                </div>
+
+                <div>
+                  <Image
+                    src="/img/icons/arrow.svg"
+                    alt=""
+                    width="46"
+                    height="46"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="border-b pb-5 mt-10 flex flex-wrap items-center justify-between gap-4"
+          >
+            <div>
+              <b>Listen On</b>
+            </div>
+
+            <nav class="flex items-center gap-3 flex-wrap">
+              {
+                socials.map((icon) => (
+                  <a
+                    href={icon.url}
+                    title={icon.title}
+                    class="hover:rotate-12"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <i class={icon.icon} />
+                  </a>
+                ))
+              }
+            </nav>
+          </div>
+
+          <div class="mt-5 grid gap-4">
+            <div class="grid grid-cols-[1fr_auto] gap-2">
+              <b>Date</b>
+              <span>{formatDate(podcast._createdAt)}</span>
+            </div>
+
+            <div class="grid grid-cols-[1fr_auto] gap-2">
+              <b>Duration</b>
+              <span>{podcast?.duration}</span>
+            </div>
+
+            <div class="grid grid-cols-[1fr_auto] gap-2">
+              <b>Share</b>
+
+              <nav class="flex items-center gap-3 flex-wrap">
+                {
+                  socials.map((icon) => (
+                    <a
+                      href={icon.url}
+                      title={icon.title}
+                      class="hover:rotate-12"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i class={icon.icon} />
+                    </a>
+                  ))
+                }
+              </nav>
+            </div>
+          </div>
+        </aside>
+
+        <div class="post">
+          <div>
+            <p class="font-semibold uppercase mb-3">
+              Episode {podcast?.episod}
+            </p>
+
+            <h1 class="mb-6">{podcast?.title}</h1>
+          </div>
+
+          <p class="text-lg my-10 font-semibold">
+            {podcast?.description}
+          </p>
+          {podcast?.body && <PortableComponent body={podcast.body} />}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {
+    relatedPodcasts.length > 0 && (
+      <section class="section">
+        <div class="container">
+          <div class="border-t pt-10">
+            <div class="flex flex-wrap gap-4 justify-between items-center">
+              <h2 class="uppercase">Latest Episodes</h2>
+
+              <a
+                href="/podcast"
+                class="btn btn-link text-inherit uppercase no-underline group p-0"
+              >
+                All Episodes
+                <i class="fa-solid fa-arrow-right group-hover:translate-x-1" />
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-10">
+              {relatedPodcasts.map((item) => (
+                <PodcastCard {...item} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Layout>

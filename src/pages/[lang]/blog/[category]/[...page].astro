@@ -1,0 +1,131 @@
+---
+import { client } from "../../../../lib/sanity";
+import Layout from "../../../../layouts/Base.astro";
+import Hero from "../../../../components/Hero.astro";
+import PostCard from "../../../../components/PostCardBase.astro";
+import Pagination from "../../../../components/Pagination.astro";
+
+import { LOCALES } from "../../../../i18n";
+
+export async function getStaticPaths({ paginate }) {
+  const paths = [];
+
+  for (const lang of Object.keys(LOCALES)) {
+    const categories = await client.fetch(
+      `
+      *[_type == "category"]{
+        "title": title[language == $lang][0].value,
+        "slug": slug.current
+      }
+      `,
+      { lang }
+    );
+
+    for (const category of categories) {
+      const posts = await client.fetch(
+        `
+        *[
+          _type == "post"
+          && language == $lang
+          && $category in categories[]->slug.current
+        ]
+        | order(_createdAt desc){
+          title,
+          description,
+          duration,
+          _createdAt,
+          "slug": slug.current,
+          "image": thumbnail.asset->url,
+          "author": author->{
+            name,
+            "slug": slug.current
+          },
+          "categories": categories[0]->{
+            "title": title[language == $lang][0].value,
+            "slug": slug.current
+          }
+        }
+        `,
+        {
+          lang,
+          category: category.slug,
+        }
+      );
+
+      const paginated = paginate(posts, {
+        pageSize: 6,
+
+        params: {
+          lang,
+          category: category.slug,
+        },
+
+        props: {
+          categoryTitle: category.title,
+        },
+      });
+
+      paths.push(...paginated);
+    }
+  }
+
+  return paths;
+}
+
+const locale = Astro.params.lang;
+
+const { page, categoryTitle } = Astro.props;
+
+const totalPages = Math.ceil(page.total / page.size);
+
+const postsCategories = await client.fetch(
+  `
+  *[_type == "category"]
+  | order(_createdAt desc){
+    "title": title[language == $lang][0].value,
+    "slug": slug.current
+  }
+  `,
+  {
+    lang: locale,
+  }
+);
+---
+
+<Layout title={`Blog | category: ${categoryTitle}`}>
+  <Hero title="Magazine" />
+
+  <section class="mt-10">
+    <div class="container">
+      <div class="flex flex-wrap justify-between items-center gap-4 mb-10">
+        <a
+          href={`/${locale}/blog`}
+          class="btn btn-link text-inherit uppercase no-underline group p-0"
+        >
+          <i class="fa-solid fa-arrow-left group-hover:translate-x-1"></i>
+          Go Back
+        </a>
+
+        <h1 class="h2 w-full lg:w-auto">
+          Category: {categoryTitle}
+        </h1>
+
+        <p>
+          Page {page.currentPage} of {totalPages}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-10">
+        {page.data.map((post) => <PostCard {...post} />)}
+      </div>
+
+      {
+        totalPages > 1 && (
+          <div class="mb-10">
+            <Pagination totalPages={totalPages} page={page} />
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Layout>

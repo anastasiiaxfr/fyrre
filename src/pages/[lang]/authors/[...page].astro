@@ -1,0 +1,67 @@
+---
+import Layout from "../../../layouts/Base.astro";
+import Hero from "../../../components/Hero.astro";
+import AuthorCardRow from "../../../components/AuthorCardRow.astro";
+import Pagination from "../../../components/Pagination.astro";
+
+import { client } from "../../../lib/sanity";
+import { LOCALES } from "../../../i18n";
+
+export async function getStaticPaths({ paginate }) {
+  const paths = [];
+
+  for (const lang of Object.keys(LOCALES)) {
+    const authors = await client.fetch(
+      `
+      *[_type == "author" && language == $lang]
+      | order(_createdAt desc){
+        name,
+        city,
+        job,
+        "slug": slug.current,
+        "image": image.asset->url
+      }
+      `,
+      { lang }
+    );
+
+    const paginated = paginate(authors, {
+      pageSize: 6,
+
+      params: {
+        lang,
+      },
+    });
+
+    paths.push(...paginated);
+  }
+
+  return paths;
+}
+
+const locale = Astro.params.lang;
+
+const { page } = Astro.props;
+
+const totalPages = Math.ceil(page.total / page.size);
+---
+
+<Layout title="Authors">
+  <Hero title="Authors" />
+
+  <section class="section">
+    <div class="container">
+      <ul class="grid gap-10 mb-10">
+        {
+          page.data.map((post) => (
+            <li class="border-b pb-10 last:border-b-0 last:pb-0">
+              <AuthorCardRow {...post} />
+            </li>
+          ))
+        }
+      </ul>
+
+      {totalPages > 1 && <Pagination totalPages={totalPages} page={page} />}
+    </div>
+  </section>
+</Layout>
